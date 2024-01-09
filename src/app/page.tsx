@@ -44,6 +44,7 @@ export default function Home() {
   const [tableName, setTableName] = useState<string>("");
   const toast = useToast();
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [responseData, setResponseData] = useState<ExecuteQueryResponse | null>(
     null
   );
@@ -162,6 +163,7 @@ export default function Home() {
 
         <Button
           colorScheme="teal"
+          isLoading={isLoading}
           variant="outline"
           onClick={() => {
             const data: ExecuteQueryRequest = {
@@ -170,21 +172,26 @@ export default function Home() {
               whereClause: whereOperation,
             };
             (async () => {
-              const response = await fetch("/api/executeQuery", {
-                method: "POST",
-                body: JSON.stringify(data),
-              });
-              const json = await response.json();
-              if (response.status === 400) {
-                const errorJson = json as ExecuteQueryErrorResponse;
-                toast({
-                  title: errorJson.errorMessage,
-                  status: "error",
-                  isClosable: true,
+              setIsLoading(true);
+              try {
+                const response = await fetch("/api/executeQuery", {
+                  method: "POST",
+                  body: JSON.stringify(data),
                 });
-              } else {
-                const successJson = json as ExecuteQueryResponse;
-                setResponseData(successJson);
+                const json = await response.json();
+                if (response.status === 400) {
+                  const errorJson = json as ExecuteQueryErrorResponse;
+                  toast({
+                    title: errorJson.errorMessage,
+                    status: "error",
+                    isClosable: true,
+                  });
+                } else {
+                  const successJson = json as ExecuteQueryResponse;
+                  setResponseData(successJson);
+                }
+              } finally {
+                setIsLoading(false);
               }
             })();
           }}
