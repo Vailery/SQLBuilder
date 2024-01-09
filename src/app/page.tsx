@@ -208,7 +208,9 @@ export default function Home() {
               {responseData.data.map((row, index) => (
                 <Tr key={index}>
                   {Object.values(row).map((item, index) => (
-                    <Td key={index}>{(item as any).toString()}</Td>
+                    <Td key={index}>
+                      {item ? (item as any).toString() : "NULL"}
+                    </Td>
                   ))}
                 </Tr>
               ))}
